@@ -10,6 +10,7 @@ import os
 import json
 from bs4 import BeautifulSoup
 
+
 try:
     from urllib import urlretrieve  # Python 2
 except ImportError:
@@ -141,16 +142,19 @@ def get_video(directory, filename, link):
     print()
 
 
-def udemy_dl(username, password, course_link):
+def udemy_dl(username, password, course_link, dest_dir=""):
     login(username, password)
 
     course_id = get_course_id(course_link)
 
     for video in get_video_links(course_id):
         directory = '%02d %s' % (video['chapter_number'], video['chapter'])
-        filename = '%03d %s.mp4' % (video['lecture_number'], video['lecture'])
-
         directory = sanitize_path(directory)
+
+        if dest_dir:
+            directory = os.path.join(dest_dir, directory)
+
+        filename = '%03d %s.mp4' % (video['lecture_number'], video['lecture'])
         filename = sanitize_path(filename)
 
         get_video(directory, filename, video['video_url'])
@@ -163,12 +167,15 @@ def main():
     parser.add_argument('link', help='Link for udemy course', action='store')
     parser.add_argument('-u', '--username', help='Username/Email', default=None, action='store')
     parser.add_argument('-p', '--password', help='Password', default=None, action='store')
+    parser.add_argument('-o', '--output-dir', help='Output directory', default=None, action='store')
 
     args = vars(parser.parse_args())
 
     username = args['username']
     password = args['password']
     link = args['link']
+
+    out_dir = os.path.normpath( re.sub(r'\\|/', re.escape(os.path.sep), args['output_dir'])  )
 
     if not username:
         try:
@@ -179,7 +186,7 @@ def main():
     if not password:
         password = getpass.getpass(prompt='Password: ')
 
-    udemy_dl(username, password, link)
+    udemy_dl(username, password, link, out_dir)
 
 
 if __name__ == '__main__':
