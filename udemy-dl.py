@@ -110,8 +110,8 @@ def get_video_links(course_id):
                                    'video_url': video_url,
                                    'lecture_number': lecture_number,
                                    'chapter_number': chapter_number})
-            except:
-                print('Cannot download lecture "%s"' % (lecture))
+            except Exception as e:
+                print('Cannot download lecture "%s" (%s)' % (lecture, e))
             lecture_number += 1
     return video_list
 
